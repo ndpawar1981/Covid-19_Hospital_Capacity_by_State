@@ -23,7 +23,7 @@ sources: (1) HHS TeleTracking, (2) reporting provided directly to HHS Protect by
 state/territorial health departments on behalf of their healthcare facilities, and (3)
 National Healthcare Safety Network (before 15 July 2020). The data were updated
 regularly and provided the latest values reported by each facility within the last four
-days at each update. This reporting method provides a comprehensive picture of
+days at each update. This data provides a comprehensive picture of
 hospital utilization within a state in the US by ensuring all hospitals were represented,
 even if they missed a single day of reporting.
 
