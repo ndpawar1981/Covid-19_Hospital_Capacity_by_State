@@ -37,3 +37,34 @@ different columns. It is time series data reported every day for given years. Th
 sufficient volume of data to run analysis through it.
 
 ## Data Questions:
+At high level, exploratory data analysis will be done. Few details outlined below.
+- Number of inpatients with COVID -19
+- Inpatient bed utilization
+- ICU bed utilization
+- ICU beds for COVID utilization
+- Number of COVID deaths
+- Identify which states had major strain during COVID-19?
+- Identify any regional pattern for staffing shortages or bed utilization.
+- Identify states having most pediatric ICU bed utilization.
+- Identify/observe any shift in the data due to any government policy changes.
+- Identify change in ICU bed utilization over given pandemic time at national level
+as well as state level.
+- Is there any correlation of critical staff shortage on number of COVID deaths in
+given time? Identify Number of hospitals reporting critical staff shortages.
+- Is there any correlation of onset COVID with number of ICU bed occupancy?
+
+## Minimum Viable Product (MVP) :
+Shiny app showcasing interesting findings about the data, with filtering based on the covid year, State and Adult/Child bed utlilization.
+
+## Data Sources:
+- Data is
+available [Here](https://healthdata.gov/Hospital/COVID-19-Reported-Patient-Impact-and-Hospital-Capa/g62h-syeh/about_data/).
+- Data Provided by U.S. Department of Health &amp; Human Services
+- Data Last Updated on June 28, 2024 2:57 PM CDT
+- Total records – 81.7K, Total Columns – 135
+- Each Row represents Daily State Aggregated Report
+
+## Known Issues and Challenges:
+There are missing data (NA) in few columns. The average data that
+represents NA per column is 8 to 10 %. Given the large dataset, it will be excluded from the
+exploration.
