@@ -26,3 +26,14 @@ regularly and provided the latest values reported by each facility within the la
 days at each update. This reporting method provides a comprehensive picture of
 hospital utilization within a state in the US by ensuring all hospitals were represented,
 even if they missed a single day of reporting.
+
+## Motivation:
+The topic itself is very sensitive as it is one in century pandemic outbreak for entire
+world. Any data associated to this topic always raises questions or concerns and people
+tend to deep dive more in that. The data used in the project is authentic as it is provided
+by federal government agencies. Any conclusion or trend derived from this analysis can
+be hold true. The dataset is rich ranging from year 2020 till 2024 with more than 100
+different columns. It is time series data reported every day for given years. There is
+sufficient volume of data to run analysis through it.
+
+## Data Questions:
