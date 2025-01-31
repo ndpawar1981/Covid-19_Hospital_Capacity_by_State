@@ -48,3 +48,6 @@ covid_filtered <- covid |>
          staffed_pediatric_icu_bed_occupancy,
          total_staffed_pediatric_icu_beds
          )
+
+#convert the date column to DATE
+covid_filtered$date <- as.Date(covid_filtered$date)

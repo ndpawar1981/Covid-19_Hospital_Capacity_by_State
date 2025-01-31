@@ -10,24 +10,52 @@
 library(shiny)
 
 # Define UI for application that draws a histogram
-fluidPage(
 
-    # Application title
-    titlePanel("Old Faithful Geyser Data"),
 
-    # Sidebar with a slider input for number of bins
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
-        ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-            plotOutput("distPlot")
-        )
+navbarPage(
+  title = "COVID-19 Hospital Data",
+  theme = shinythemes::shinytheme("flatly"), 
+  tabPanel(
+    title = "Overview",
+    fluidPage(
+      h4("Covid-19 Patients Impact and Hospital Capacity By State "),
+      p("This dashboard provides insights into hospital capacities during COVID-19."),
+      fluidRow(
+        
+      ),
+      fluidRow(
+        
+      )
     )
+  ),
+  tabPanel(
+    title = "Hospital Bed Utilization Trends",
+    fluidPage(
+      titlePanel("Hospital Data"),
+      sidebarLayout(
+        sidebarPanel(
+          selectInput("HospDataSelectState", label = "Select State:",
+                      choices = c("All", covid_filtered |> distinct(state) |> pull(state) |> sort())),
+          selectInput("HospDataType", label = "Select Hospital Bed:",
+                      choices = c("All", "Inpatient Bed", "Staffed ICU Bed")),
+          dateRangeInput(
+            "HospDataDateRange",
+            "Select Date Range:",
+            start = min(covid_filtered$date),
+            end = max(covid_filtered$date)
+          ),
+          width = 3
+        ),
+        mainPanel(
+        ) 
+      )
+    )
+  ),
+  tabPanel(
+    title = "TBD",
+    fluidPage(
+      
+    )
+  )
 )
+
