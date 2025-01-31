@@ -7,7 +7,6 @@
 #    https://shiny.posit.co/
 #
 
-library(shiny)
 
 # Define UI for application that draws a histogram
 
@@ -36,8 +35,8 @@ navbarPage(
         sidebarPanel(
           selectInput("HospDataSelectState", label = "Select State:",
                       choices = c("All", covid_filtered |> distinct(state) |> pull(state) |> sort())),
-          selectInput("HospDataType", label = "Select Hospital Bed:",
-                      choices = c("All", "Inpatient Bed", "Staffed ICU Bed")),
+          #selectInput("HospDataType", label = "Select Hospital Bed:",
+          #           choices = c("All", "Inpatient Bed", "Adult ICU Bed","Pediatric ICU Bed")),
           dateRangeInput(
             "HospDataDateRange",
             "Select Date Range:",
@@ -47,6 +46,12 @@ navbarPage(
           width = 3
         ),
         mainPanel(
+          valueBoxOutput("totalInpatientsBeds"),
+          valueBoxOutput("totalInpatientsCovidBeds")
+          #valueBoxOutput("totalICUBeds"),
+          #valueBoxOutput("totalICUBeds"),
+          #valueBoxOutput("totalICUBeds"),
+          #valueBoxOutput("totalICUBeds")
         ) 
       )
     )
