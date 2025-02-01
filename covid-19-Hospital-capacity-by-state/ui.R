@@ -16,6 +16,7 @@ navbarPage(
   theme = shinythemes::shinytheme("flatly"), 
   tabPanel(
     title = "Overview",
+    icon = icon('database'),
     fluidPage(
       h4("Covid-19 Patients Impact and Hospital Capacity By State "),
       p("This dashboard provides insights into hospital capacities during COVID-19."),
@@ -29,6 +30,7 @@ navbarPage(
   ),
   tabPanel(
     title = "Hospital Bed Utilization Trends",
+    icon = icon('hospital'),
     fluidPage(
       titlePanel("Hospital Data"),
       sidebarLayout(
@@ -46,12 +48,35 @@ navbarPage(
           width = 3
         ),
         mainPanel(
-          valueBoxOutput("totalInpatientsBeds"),
-          valueBoxOutput("totalInpatientsCovidBeds")
-          #valueBoxOutput("totalICUBeds"),
-          #valueBoxOutput("totalICUBeds"),
-          #valueBoxOutput("totalICUBeds"),
-          #valueBoxOutput("totalICUBeds")
+          box(
+            width=12,
+            title='Trends Over Time',
+            status='primary',
+            p('Summary of Hospital Beds over time.'),
+            fluidRow(
+              column(3,infoBoxOutput("avgInpatientsBeds")),
+              column(3,infoBoxOutput("avgInpatientUsedBeds")),
+              column(3,infoBoxOutput("avgInpatientsCovidBeds"))
+              
+            ),
+            fluidRow(
+              column(3,infoBoxOutput("avgStaffedAdultICUBeds")),
+              column(3,infoBoxOutput("avgStaffedAdultICUBedsOccupied")),
+              column(3,infoBoxOutput("AvgStaffedICUAdultsCovid"))
+              
+            ),
+            fluidRow(
+              column(3,infoBoxOutput("AvgStaffedPiatricICUBeds")),
+              column(3,infoBoxOutput("AvgPiatricICUBedsUsed")),
+              column(3,infoBoxOutput("AvgICUPediatricCovid"))
+            ),
+            fluidRow(
+              column(3,infoBoxOutput("AvgAdultHospitalizedCovid")),
+              column(3,infoBoxOutput("AvgPediatricHospitalizedCovid")),
+              column(3,infoBoxOutput("AvgCovidDeaths"))
+            )
+          ),
+          width=9
         ) 
       )
     )

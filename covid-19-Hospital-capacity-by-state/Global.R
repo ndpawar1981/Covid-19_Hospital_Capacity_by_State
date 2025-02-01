@@ -3,6 +3,7 @@ library(plotly)
 library(tidyverse)
 library(DT)
 library(shinydashboard)
+library(leaflet)
 
 covid <- read.csv('./data/COVID.csv',check.names = FALSE)
 covid_filtered <- covid |> 
