@@ -12,6 +12,11 @@
 
 
 navbarPage(
+  # Include the custom CSS file
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
+  ),
+  
   title = "COVID-19 Hospital Data",
   theme = shinythemes::shinytheme("flatly"), 
   tabPanel(
@@ -29,10 +34,9 @@ navbarPage(
     )
   ),
   tabPanel(
-    title = "Hospital Bed Utilization Trends",
+    title = "Bed Utilization Trends",
     icon = icon('hospital'),
     fluidPage(
-      titlePanel("Hospital Data"),
       sidebarLayout(
         sidebarPanel(
           selectInput("HospDataSelectState", label = "Select State:",
@@ -52,28 +56,44 @@ navbarPage(
             width=12,
             title='Trends Over Time',
             status='primary',
-            p('Summary of Hospital Beds over time.'),
-            fluidRow(
-              column(3,infoBoxOutput("avgInpatientsBeds")),
-              column(3,infoBoxOutput("avgInpatientUsedBeds")),
-              column(3,infoBoxOutput("avgInpatientsCovidBeds"))
-              
-            ),
-            fluidRow(
-              column(3,infoBoxOutput("avgStaffedAdultICUBeds")),
-              column(3,infoBoxOutput("avgStaffedAdultICUBedsOccupied")),
-              column(3,infoBoxOutput("AvgStaffedICUAdultsCovid"))
-              
-            ),
-            fluidRow(
-              column(3,infoBoxOutput("AvgStaffedPiatricICUBeds")),
-              column(3,infoBoxOutput("AvgPiatricICUBedsUsed")),
-              column(3,infoBoxOutput("AvgICUPediatricCovid"))
-            ),
-            fluidRow(
-              column(3,infoBoxOutput("AvgAdultHospitalizedCovid")),
-              column(3,infoBoxOutput("AvgPediatricHospitalizedCovid")),
-              column(3,infoBoxOutput("AvgCovidDeaths"))
+            p('Summary of Hospital Beds and Covid over time.'),
+            tabsetPanel(
+              tabPanel("Inpatient",
+                       fluidPage(
+                         fluidRow(
+                           column(3,infoBoxOutput("avgInpatientsBeds")),
+                           column(3,infoBoxOutput("avgInpatientUsedBeds")),
+                           column(3,infoBoxOutput("avgInpatientsCovidBeds"))
+                         )
+                       )
+              ),
+              tabPanel("Staffed Adult ICU",
+                       fluidPage(
+                         fluidRow(
+                           column(3,infoBoxOutput("avgStaffedAdultICUBeds")),
+                           column(3,infoBoxOutput("avgStaffedAdultICUBedsOccupied")),
+                           column(3,infoBoxOutput("AvgStaffedICUAdultsCovid"))
+                         )
+                       )
+              ),
+              tabPanel("Staffed Pediatric ICU",
+                       fluidPage(
+                         fluidRow(
+                           column(3,infoBoxOutput("AvgStaffedPiatricICUBeds")),
+                           column(3,infoBoxOutput("AvgPiatricICUBedsUsed")),
+                           column(3,infoBoxOutput("AvgICUPediatricCovid"))
+                         )
+                       )
+              ),
+              tabPanel("Covid",
+                       fluidPage(
+                         fluidRow(
+                           column(3,infoBoxOutput("AvgAdultHospitalizedCovid")),
+                           column(3,infoBoxOutput("AvgPediatricHospitalizedCovid")),
+                           column(3,infoBoxOutput("AvgCovidDeaths"))
+                         )
+                       )
+              )
             )
           ),
           width=9

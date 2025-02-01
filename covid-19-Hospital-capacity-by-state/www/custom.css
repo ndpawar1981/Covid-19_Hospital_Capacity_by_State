@@ -1,0 +1,15 @@
+/* custom.css */
+.nav-tabs>li>a {
+  color: #fff;
+  background-color: #1b2838;
+}
+
+.nav-tabs-custom>.nav-tabs>li.active>a,
+.nav-tabs-custom>.nav-tabs>li.active:focus>a,
+.nav-tabs-custom>.nav-tabs>li.active:hover>a,
+.nav-tabs-custom>.nav-tabs>li:focus>a,
+.nav-tabs-custom>.nav-tabs>li:hover>a {
+  background-color: #367fa9;
+  color: #fff;
+}
+
