@@ -4,6 +4,10 @@ library(tidyverse)
 library(DT)
 library(shinydashboard)
 library(leaflet)
+library(shinyWidgets)
+library(scales) 
+library(lubridate)
+library(glue)
 
 covid <- read.csv('./data/COVID.csv',check.names = FALSE)
 covid_filtered <- covid |> 
@@ -51,9 +55,10 @@ covid_filtered <- covid |>
          total_staffed_pediatric_icu_beds
          )
 
+# ADD PERCENTAGE COLUMNS FOR PEDIATRIC WHICH WILL BE USED FOR PLOTS
 covid_filtered <- covid_filtered |> 
-  mutate(pediatric_icu_bed_covid_utilization = ifelse(is.na(total_staffed_pediatric_icu_beds) | is.na(staffed_icu_pediatric_patients_confirmed_covid), 0, staffed_icu_pediatric_patients_confirmed_covid/total_staffed_pediatric_icu_beds),
-         pediatric_icu_bed_utilization =  ifelse(is.na(total_staffed_pediatric_icu_beds) | is.na(staffed_pediatric_icu_bed_occupancy), 0, staffed_pediatric_icu_bed_occupancy/total_staffed_pediatric_icu_beds)
+  mutate(pediatric_icu_bed_covid_utilization = ifelse(is.na(total_staffed_pediatric_icu_beds) | is.na(staffed_icu_pediatric_patients_confirmed_covid) | total_staffed_pediatric_icu_beds == 0, 0, staffed_icu_pediatric_patients_confirmed_covid/total_staffed_pediatric_icu_beds),
+         pediatric_icu_bed_utilization =  ifelse(is.na(total_staffed_pediatric_icu_beds) | is.na(staffed_pediatric_icu_bed_occupancy) | total_staffed_pediatric_icu_beds == 0, 0, staffed_pediatric_icu_bed_occupancy/total_staffed_pediatric_icu_beds)
   )
   
 #convert the date column to DATE

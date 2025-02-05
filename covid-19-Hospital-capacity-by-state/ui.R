@@ -11,14 +11,16 @@
 # Define UI for application that draws a histogram
 
 
+
+
 navbarPage(
   # Include the custom CSS file
-  tags$head(
+  header = tags$head(
     tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
   ),
   
   title = "COVID-19 Hospital Data",
-  theme = shinythemes::shinytheme("flatly"), 
+  theme = shinythemes::shinytheme("flatly"),
   tabPanel(
     title = "Overview",
     icon = icon('database'),
@@ -37,6 +39,7 @@ navbarPage(
     title = "Bed Utilization Trends",
     icon = icon('hospital'),
     fluidPage(
+      #useShinydashboard(),
       sidebarLayout(
         sidebarPanel(
           selectInput("HospDataSelectState", label = "Select State:",
@@ -52,60 +55,65 @@ navbarPage(
           width = 3
         ),
         mainPanel(
-          box(
-            width=12,
-            title='Trends Over Time',
-            status='primary',
-            p('Summary of Hospital Beds and Covid over time.'),
-            tabsetPanel(
-              tabPanel("Inpatient",
-                       fluidPage(
-                         fluidRow(
-                           column(3,infoBoxOutput("avgInpatientsBeds")),
-                           column(3,infoBoxOutput("avgInpatientUsedBeds")),
-                           column(3,infoBoxOutput("avgInpatientsCovidBeds"))
-                         )
+          title="Trends Over Time",
+          p('Summary of Hospital Beds and Covid over time.'),
+          tabsetPanel(
+            tabPanel("Inpatient",
+                     fluidPage(
+                       fluidRow(
+                         column(4,valueBoxOutput("avgInpatientsBeds")),
+                         column(4,valueBoxOutput("avgInpatientUsedBeds")),
+                         column(4,valueBoxOutput("avgInpatientsCovidBeds"))
+                       ),
+                       br(),
+                       fluidRow(
+                         plotOutput("inpatient_time_series_plot")
                        )
-              ),
-              tabPanel("Staffed Adult ICU",
-                       fluidPage(
-                         fluidRow(
-                           column(3,infoBoxOutput("avgStaffedAdultICUBeds")),
-                           column(3,infoBoxOutput("avgStaffedAdultICUBedsOccupied")),
-                           column(3,infoBoxOutput("AvgStaffedICUAdultsCovid"))
-                         )
+                     )
+            ),
+            tabPanel("Staffed Adult ICU",
+                     fluidPage(
+                       fluidRow(
+                         column(3,infoBoxOutput("avgStaffedAdultICUBeds")),
+                         column(3,infoBoxOutput("avgStaffedAdultICUBedsOccupied")),
+                         column(3,infoBoxOutput("AvgStaffedICUAdultsCovid"))
+                       ),
+                       br(),
+                       fluidRow(
+                         plotOutput("Adult_ICU_Bed_time_series_plot")
                        )
-              ),
-              tabPanel("Staffed Pediatric ICU",
-                       fluidPage(
-                         fluidRow(
-                           column(3,infoBoxOutput("AvgStaffedPiatricICUBeds")),
-                           column(3,infoBoxOutput("AvgPiatricICUBedsUsed")),
-                           column(3,infoBoxOutput("AvgICUPediatricCovid"))
-                         )
+                     )
+            ),
+            tabPanel("Staffed Pediatric ICU",
+                     fluidPage(
+                       fluidRow(
+                         column(3,infoBoxOutput("AvgStaffedPiatricICUBeds")),
+                         column(3,infoBoxOutput("AvgPiatricICUBedsUsed")),
+                         column(3,infoBoxOutput("AvgICUPediatricCovid"))
+                       ),
+                       br(),
+                       fluidRow(
+                         plotOutput("Pediatric_ICU_Bed_time_series_plot")
                        )
-              ),
-              tabPanel("Covid",
-                       fluidPage(
-                         fluidRow(
-                           column(3,infoBoxOutput("AvgAdultHospitalizedCovid")),
-                           column(3,infoBoxOutput("AvgPediatricHospitalizedCovid")),
-                           column(3,infoBoxOutput("AvgCovidDeaths"))
-                         )
+                     )
+            ),
+            tabPanel("Data",
+                     fluidPage(
+                       fluidRow(
+                         DTOutput("covidTable") 
                        )
-              )
+                    )
             )
-          ),
-          width=9
-        ) 
+          )
+        )
       )
     )
   ),
   tabPanel(
-    title = "TBD",
+    title = "Geo Visuals",
+    icon = icon('map'),
     fluidPage(
       
     )
   )
 )
-
