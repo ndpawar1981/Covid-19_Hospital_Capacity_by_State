@@ -64,4 +64,12 @@ covid_filtered <- covid_filtered |>
 #convert the date column to DATE
 covid_filtered$date <- as.Date(covid_filtered$date)
 
+#Need to get state names.
+statesList = read.csv('./data/data-map-state-abbreviations.csv')
+covid_filtered <- left_join(covid_filtered, statesList, by = "state")
+
+quarters_seq <- seq(as.Date("2020-01-01"), as.Date("2024-10-01"), by = "quarter")
+quarter_labels <- paste0(year(quarters_seq), "-Q", quarter(quarters_seq))
+
+
 

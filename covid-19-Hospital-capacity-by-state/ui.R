@@ -43,7 +43,7 @@ navbarPage(
       sidebarLayout(
         sidebarPanel(
           selectInput("HospDataSelectState", label = "Select State:",
-                      choices = c("All", covid_filtered |> distinct(state) |> pull(state) |> sort())),
+                      choices = c("All", covid_filtered |> distinct(Name) |> pull(Name) |> sort())),
           #selectInput("HospDataType", label = "Select Hospital Bed:",
           #           choices = c("All", "Inpatient Bed", "Adult ICU Bed","Pediatric ICU Bed")),
           dateRangeInput(
@@ -102,7 +102,7 @@ navbarPage(
                        fluidRow(
                          DTOutput("covidTable") 
                        )
-                    )
+                     )
             )
           )
         )
@@ -113,6 +113,23 @@ navbarPage(
     title = "Geo Visuals",
     icon = icon('map'),
     fluidPage(
+      fluidRow(
+        column(4),  # Empty space on left
+        column(4, 
+               sliderInput("quarter_date", "Select Quarterly Date:",
+                           min = quarters_seq[1], max = quarters_seq[length(quarters_seq)], value = quarters_seq[1], step = 20,
+                           ticks = TRUE, animate = TRUE, width = "100%")
+        ),
+        column(4)
+      ),
+      fluidRow(
+        column(6, plotlyOutput('mapplot')),
+        column(6, plotlyOutput('covidplot'))
+      ),
+      fluidRow(
+        column(6,DTOutput("top_Inpatient_states_table")),
+        column(6,DTOutput("top_covid_Death_states_table"))
+      )
       
     )
   )

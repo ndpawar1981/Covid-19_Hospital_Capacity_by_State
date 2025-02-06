@@ -17,7 +17,7 @@ function(input, output, session) {
     
     if (input$HospDataSelectState != "All"){
       covid_data <- covid_data |> 
-        filter(state == input$HospDataSelectState &
+        filter(Name == input$HospDataSelectState &
                  date >= input$HospDataDateRange[1] & 
                  date <= input$HospDataDateRange[2])
     }
@@ -321,9 +321,101 @@ function(input, output, session) {
   output$covidTable <- renderDT({
     datatable(
       covid_data(),
-      options = list(pageLength = 10),
+      options = list(pageLength = 50),
       rownames = FALSE
     )
   })
+  
+  #Lets get MAP data 
+  map_filtered <- reactive({
+    
+    map_filtered <- covid_filtered |> 
+      filter( date <= as.Date(input$quarter_date)) |>
+      select(state,Name,inpatient_beds_utilization,deaths_covid) |> 
+      group_by(state,Name) |> 
+      summarise(inpatient_beds_utilization_map_avg = mean(inpatient_beds_utilization, na.rm = TRUE) * 100,
+                covid_death_avg = round(mean(deaths_covid, na.rm = TRUE)) ) 
+    
+    return(map_filtered)
+  })
+  
+  output$mapplot <- renderPlotly({
+    maps <- map_filtered() 
+    maps$hover <- with(maps, paste(Name, '<br>', "Inpatient Bed ", round(inpatient_beds_utilization_map_avg,2),"%"))
+    
+    # give state boundaries a white border
+    l <- list(color = toRGB("white"), width = 2)
+    # specify some map projection/options
+    g <- list(
+      scope = 'usa',
+      projection = list(type = 'albers usa'),
+      showlakes = TRUE,
+      lakecolor = toRGB('white')
+    )
+    
+    fig <- plot_geo(maps, locationmode = 'USA-states')
+    fig <- fig %>% add_trace(
+      z = ~inpatient_beds_utilization_map_avg, text = ~hover, locations = ~state,
+      color = ~inpatient_beds_utilization_map_avg, colors = 'Reds'
+    )
+    fig <- fig %>% colorbar(title = "% Inpatient Bed")
+    fig <- fig %>% layout(
+      title = 'Hospital Data by State<br>(Hover for breakdown)',
+      geo = g
+    )
+    fig
+  })
+  
+  output$covidplot <- renderPlotly({
+    mapsCovid <- map_filtered() 
+    mapsCovid$hover <- with(mapsCovid, paste(Name, '<br>', "Covid Deaths ", covid_death_avg))
+    
+    # give state boundaries a white border
+    l <- list(color = toRGB("white"), width = 2)
+    # specify some map projection/options
+    g <- list(
+      scope = 'usa',
+      projection = list(type = 'albers usa'),
+      showlakes = TRUE,
+      lakecolor = toRGB('white')
+    )
+    
+    fig <- plot_geo(mapsCovid, locationmode = 'USA-states')
+    fig <- fig %>% add_trace(
+      z = ~covid_death_avg, text = ~hover, locations = ~state,
+      color = ~covid_death_avg, colors = 'Reds'
+    )
+    fig <- fig %>% colorbar(title = "Covid Deaths")
+    fig <- fig %>% layout(
+      title = 'Covid Death Data by State<br>(Hover for breakdown)',
+      geo = g
+    )
+    fig
+  })
+  
+  output$top_Inpatient_states_table <- renderDT({
+    map_filtered() |> 
+      mutate(inpatient_beds_utilization_map_avg1 = round(inpatient_beds_utilization_map_avg,2)) |> 
+      arrange(desc(inpatient_beds_utilization_map_avg1)) |>
+      select(Name,inpatient_beds_utilization_map_avg1) |> 
+      head(5)
+      
+  }, options = list(
+    dom = 't'  # Remove search, pagination, and entries dropdown
+  ), rownames = FALSE,
+  colnames = c("Abbr" = "state","State"= "Name", "Avg Inpatient Bed Utilization (%)" = "inpatient_beds_utilization_map_avg1")
+  )
+  
+  output$top_covid_Death_states_table <- renderDT({
+    map_filtered() |> 
+      arrange(desc(covid_death_avg)) |>
+      select(Name,covid_death_avg) |> 
+      head(5)
+    
+  }, options = list(
+    dom = 't'  # Remove search, pagination, and entries dropdown
+  ), rownames = FALSE,
+  colnames = c("Abbr" = "state","State"= "Name", "Avg Covid-19 Deaths" = "covid_death_avg")
+  )
   
 }
