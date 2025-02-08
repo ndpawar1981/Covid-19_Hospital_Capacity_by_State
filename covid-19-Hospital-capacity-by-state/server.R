@@ -342,6 +342,8 @@ function(input, output, session) {
   output$mapplot <- renderPlotly({
     maps <- map_filtered() 
     maps$hover <- with(maps, paste(Name, '<br>', "Inpatient Bed ", round(inpatient_beds_utilization_map_avg,2),"%"))
+    minBeds = min(covid_filtered$inpatient_beds_utilization,na.rm = TRUE) * 100
+    maxBeds = max(covid_filtered$inpatient_beds_utilization,na.rm = TRUE) * 100
     
     # give state boundaries a white border
     l <- list(color = toRGB("white"), width = 2)
@@ -356,7 +358,11 @@ function(input, output, session) {
     fig <- plot_geo(maps, locationmode = 'USA-states')
     fig <- fig %>% add_trace(
       z = ~inpatient_beds_utilization_map_avg, text = ~hover, locations = ~state,
-      color = ~inpatient_beds_utilization_map_avg, colors = 'Reds'
+      color = ~inpatient_beds_utilization_map_avg, 
+      #colors = 'Reds'
+      colorscale='Viridis',
+      cmin=minBeds,  # Minimum color value
+      cmax=maxBeds  # Maximum color value
     )
     fig <- fig %>% colorbar(title = "% Inpatient Bed")
     fig <- fig %>% layout(
@@ -369,6 +375,8 @@ function(input, output, session) {
   output$covidplot <- renderPlotly({
     mapsCovid <- map_filtered() 
     mapsCovid$hover <- with(mapsCovid, paste(Name, '<br>', "Covid Deaths ", covid_death_avg))
+    minDeath = min(covid_filtered$deaths_covid,na.rm = TRUE) 
+    maxDeath = max(covid_filtered$deaths_covid,na.rm = TRUE)
     
     # give state boundaries a white border
     l <- list(color = toRGB("white"), width = 2)
@@ -383,7 +391,11 @@ function(input, output, session) {
     fig <- plot_geo(mapsCovid, locationmode = 'USA-states')
     fig <- fig %>% add_trace(
       z = ~covid_death_avg, text = ~hover, locations = ~state,
-      color = ~covid_death_avg, colors = 'Reds'
+      color = ~covid_death_avg, 
+      #colors = 'Reds'
+      colorscale='Viridis',
+      cmin=minDeath,  # Minimum color value
+      cmax=maxDeath  # Maximum color value
     )
     fig <- fig %>% colorbar(title = "Covid Deaths")
     fig <- fig %>% layout(
@@ -398,7 +410,7 @@ function(input, output, session) {
       mutate(inpatient_beds_utilization_map_avg1 = round(inpatient_beds_utilization_map_avg,2)) |> 
       arrange(desc(inpatient_beds_utilization_map_avg1)) |>
       select(Name,inpatient_beds_utilization_map_avg1) |> 
-      head(5)
+      head(10)
       
   }, options = list(
     dom = 't'  # Remove search, pagination, and entries dropdown
@@ -410,12 +422,68 @@ function(input, output, session) {
     map_filtered() |> 
       arrange(desc(covid_death_avg)) |>
       select(Name,covid_death_avg) |> 
-      head(5)
+      head(10)
     
   }, options = list(
     dom = 't'  # Remove search, pagination, and entries dropdown
   ), rownames = FALSE,
   colnames = c("Abbr" = "state","State"= "Name", "Avg Covid-19 Deaths" = "covid_death_avg")
   )
+  
+  covid_filtered_onset <- covid_filtered |> 
+    group_by(date) |> 
+    summarise(onset_covid_avg = round(mean(onset_covid,na.rm = TRUE)),
+              inpatient_beds_used_covid_avg = round(mean(inpatient_beds_used_covid,na.rm = TRUE)),
+              critical_staff_shortage_avg = round(mean(critical_staff_shortage,na.rm = TRUE)),
+              deaths_covid_avg = round(mean(deaths_covid,na.rm = TRUE) )
+              )
+  
+  # Calculate correlation coefficient
+  output$correlation_value_onset <- renderPrint({
+    cor_value_onset <- cor(covid_filtered_onset$onset_covid_avg, covid_filtered_onset$inpatient_beds_used_covid_avg)
+    paste("Correlation Coefficient:", round(cor_value_onset, 3))
+  })
+  
+  output$correlation_plot_onset <- renderPlotly({
+    ggplot(covid_filtered_onset, aes(x = inpatient_beds_used_covid_avg, y = onset_covid_avg, color = onset_covid_avg)) +
+      geom_point(alpha = 0.7, size = 4) +
+      geom_smooth(method = "lm", color = "black", se = TRUE) +
+      scale_color_continuous(name = "Onset Covid Patients", low = "blue", high = "red", limits = c(0, 50)) +  # Color scale
+      labs(
+        x = "Inpatient Covid Beds",
+        y = "Onset Covid",
+        title = "Correlation - hospital onset Covid and Inpatient Covid Beds"
+      ) 
+  })
+  
+  # Linear regression model output
+  output$model_output_onset <- renderPrint({
+    model_onset <- lm(onset_covid_avg ~ inpatient_beds_used_covid_avg, data = covid_filtered_onset)
+    summary(model_onset)  # Show regression summary
+  })
+  
+  # Calculate correlation coefficient
+  output$correlation_value_staff <- renderPrint({
+    cor_value_staff <- cor(covid_filtered_onset$deaths_covid_avg, covid_filtered_onset$critical_staff_shortage_avg)
+    paste("Correlation Coefficient:", round(cor_value_staff, 3))
+  })
+  
+  output$correlation_plot_staff <- renderPlotly({
+    ggplot(covid_filtered_onset, aes(x = critical_staff_shortage_avg, y = deaths_covid_avg, color = deaths_covid_avg)) +
+      geom_point(alpha = 0.7, size = 4) +
+      geom_smooth(method = "lm", color = "black", se = TRUE) +
+      scale_color_continuous(name = "Covid Deaths", low = "blue", high = "red", limits = c(0, 50)) +  # Color scale
+      labs(
+        x = "Critical Staff Shortage Reported",
+        y = "Covid Deaths",
+        title = "Correlation - hospital Covid Deaths and Critical Staff shortage"
+      ) 
+  })
+  
+  # Linear regression model output
+  output$model_output_staff <- renderPrint({
+    model_onset_staff <- lm(deaths_covid_avg ~ critical_staff_shortage_avg, data = covid_filtered_onset)
+    summary(model_onset_staff)  # Show regression summary
+  })
   
 }

@@ -132,5 +132,44 @@ navbarPage(
       )
       
     )
+  ),
+  tabPanel(
+    title = "Model",
+    icon = icon('calculator'),
+    fluidPage(
+      fluidRow(
+        column(3),  # Empty space on left
+        column(6, 
+               h4("Relationship between Onset Covid-19 and Inpatient Covid beds utilization "),
+               br(),
+               verbatimTextOutput("correlation_value_onset")
+        ),
+        column(3)
+      ),
+      fluidRow(
+        column(6,plotlyOutput("correlation_plot_onset")),
+        column(6,verbatimTextOutput("model_output_onset")),
+        br()
+      ),
+      
+      tags$hr(style="border-top: 3px #2c3e50;"),
+      
+      fluidRow(
+        column(3),  
+        column(6, 
+               h4("Relationship between Covid-19 and number of hospitals Critical Staff shortage "),
+               br(),
+               verbatimTextOutput("correlation_value_staff")
+        ),
+        column(3)
+      ),
+      fluidRow(
+        column(6,plotlyOutput("correlation_plot_staff")),
+        column(6,verbatimTextOutput("model_output_staff")),
+        br()
+      )
+      
+    )
   )
 )
+  
