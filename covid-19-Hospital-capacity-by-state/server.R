@@ -190,15 +190,27 @@ function(input, output, session) {
     title1 <- glue("Inpatient Hospital Utilization")
     if (input$HospDataSelectState != "All"){
       title1 <- paste0(title1, glue(" for {input$HospDataSelectState} State"))
+      
+      df_filtered <- covid_data() %>%
+        filter(date >= as.Date(input$HospDataDateRange[1]) & date <= as.Date(input$HospDataDateRange[2])) %>%
+        arrange(date) |> 
+        group_by(date) |> 
+        summarise(inpatient_beds_utilization_avg = mean(inpatient_beds_utilization *100),
+                  inpatient_bed_covid_utilization_avg = mean(inpatient_bed_covid_utilization *100),
+                  percent_of_inpatients_with_covid_avg = mean(percent_of_inpatients_with_covid * 100))
+    }else{
+      df_filtered <- covid_data() %>%
+        filter(date >= as.Date(input$HospDataDateRange[1]) & date <= as.Date(input$HospDataDateRange[2])) %>%
+        arrange(date) |> 
+        group_by(date) |> 
+        summarise(inpatient_beds_utilization_avg= weighted.mean(inpatient_beds_utilization,population,na.rm = TRUE) * 100 ,
+                  inpatient_bed_covid_utilization_avg = weighted.mean(inpatient_bed_covid_utilization,population,na.rm = TRUE) * 100,
+                  percent_of_inpatients_with_covid_avg = weighted.mean(percent_of_inpatients_with_covid,population,na.rm = TRUE) * 100,
+                  population=sum(population))
     }
     
-    df_filtered <- covid_data() %>%
-      filter(date >= as.Date(input$HospDataDateRange[1]) & date <= as.Date(input$HospDataDateRange[2])) %>%
-      arrange(date) |> 
-      group_by(date) |> 
-      summarise(inpatient_beds_utilization_avg = mean(inpatient_beds_utilization *100),
-                inpatient_bed_covid_utilization_avg = mean(inpatient_bed_covid_utilization *100),
-                percent_of_inpatients_with_covid_avg = mean(percent_of_inpatients_with_covid * 100)) 
+    
+  
     
     # Plot time series trends with labels
     ggplot(df_filtered, aes(x = date)) +
@@ -242,9 +254,9 @@ function(input, output, session) {
       filter(date >= as.Date(input$HospDataDateRange[1]) & date <= as.Date(input$HospDataDateRange[2])) %>%
       arrange(date) |> 
       group_by(date) |> 
-      summarise(total_staffed_adult_icu_beds_avg = mean(total_staffed_adult_icu_beds),
-                staffed_adult_icu_bed_occupancy_avg = mean(staffed_adult_icu_bed_occupancy),
-                staffed_icu_adult_patients_confirmed_and_suspected_covid_avg = mean(staffed_icu_adult_patients_confirmed_and_suspected_covid )) 
+      summarise(total_staffed_adult_icu_beds_avg = mean(total_staffed_adult_icu_beds,na.rm = TRUE),
+                staffed_adult_icu_bed_occupancy_avg = mean(staffed_adult_icu_bed_occupancy,na.rm = TRUE),
+                staffed_icu_adult_patients_confirmed_and_suspected_covid_avg = mean(staffed_icu_adult_patients_confirmed_and_suspected_covid, na.rm = TRUE )) 
     
     # Plot time series trends with labels
     ggplot(df_filtered2, aes(x = date)) +
@@ -285,9 +297,10 @@ function(input, output, session) {
       filter(date >= as.Date(input$HospDataDateRange[1]) & date <= as.Date(input$HospDataDateRange[2])) %>%
       arrange(date) |> 
       group_by(date) |> 
-      summarise(total_staffed_pediatric_icu_beds_avg = mean(total_staffed_pediatric_icu_beds),
-                staffed_pediatric_icu_bed_occupancy_avg = mean(staffed_pediatric_icu_bed_occupancy),
-                staffed_icu_pediatric_patients_confirmed_covid_avg = mean(staffed_icu_pediatric_patients_confirmed_covid )) 
+      summarise(total_staffed_pediatric_icu_beds_avg = mean(total_staffed_pediatric_icu_beds,na.rm = TRUE),
+                staffed_pediatric_icu_bed_occupancy_avg = mean(staffed_pediatric_icu_bed_occupancy,na.rm = TRUE),
+                staffed_icu_pediatric_patients_confirmed_covid_avg = mean(staffed_icu_pediatric_patients_confirmed_covid,na.rm = TRUE )) 
+    
     
     # Plot time series trends with labels
     ggplot(df_filtered3, aes(x = date)) +
@@ -330,7 +343,7 @@ function(input, output, session) {
   map_filtered <- reactive({
     
     map_filtered <- covid_filtered |> 
-      filter( date <= as.Date(input$quarter_date)) |>
+      filter( date >= as.Date(input$quarter_date) - 15 & date <= as.Date(input$quarter_date)) |>
       select(state,Name,inpatient_beds_utilization,deaths_covid) |> 
       group_by(state,Name) |> 
       summarise(inpatient_beds_utilization_map_avg = mean(inpatient_beds_utilization, na.rm = TRUE) * 100,
@@ -342,8 +355,8 @@ function(input, output, session) {
   output$mapplot <- renderPlotly({
     maps <- map_filtered() 
     maps$hover <- with(maps, paste(Name, '<br>', "Inpatient Bed ", round(inpatient_beds_utilization_map_avg,2),"%"))
-    minBeds = min(covid_filtered$inpatient_beds_utilization,na.rm = TRUE) * 100
-    maxBeds = max(covid_filtered$inpatient_beds_utilization,na.rm = TRUE) * 100
+    minBeds <- min(covid_filtered$inpatient_beds_utilization,na.rm = TRUE) * 100
+    maxBeds <- max(covid_filtered$inpatient_beds_utilization,na.rm = TRUE) * 100
     
     # give state boundaries a white border
     l <- list(color = toRGB("white"), width = 2)
@@ -361,8 +374,8 @@ function(input, output, session) {
       color = ~inpatient_beds_utilization_map_avg, 
       #colors = 'Reds'
       colorscale='Viridis',
-      cmin=minBeds,  # Minimum color value
-      cmax=maxBeds  # Maximum color value
+      zmin=minBeds,  # Minimum color value
+      zmax=maxBeds  # Maximum color value
     )
     fig <- fig %>% colorbar(title = "% Inpatient Bed")
     fig <- fig %>% layout(
@@ -375,8 +388,8 @@ function(input, output, session) {
   output$covidplot <- renderPlotly({
     mapsCovid <- map_filtered() 
     mapsCovid$hover <- with(mapsCovid, paste(Name, '<br>', "Covid Deaths ", covid_death_avg))
-    minDeath = min(covid_filtered$deaths_covid,na.rm = TRUE) 
-    maxDeath = max(covid_filtered$deaths_covid,na.rm = TRUE)
+    minDeath <- min(covid_filtered$deaths_covid,na.rm = TRUE) 
+    maxDeath <- max(covid_filtered$deaths_covid,na.rm = TRUE)
     
     # give state boundaries a white border
     l <- list(color = toRGB("white"), width = 2)
@@ -394,8 +407,8 @@ function(input, output, session) {
       color = ~covid_death_avg, 
       #colors = 'Reds'
       colorscale='Viridis',
-      cmin=minDeath,  # Minimum color value
-      cmax=maxDeath  # Maximum color value
+      zmin=minDeath,  # Minimum color value
+      zmax=maxDeath  # Maximum color value
     )
     fig <- fig %>% colorbar(title = "Covid Deaths")
     fig <- fig %>% layout(

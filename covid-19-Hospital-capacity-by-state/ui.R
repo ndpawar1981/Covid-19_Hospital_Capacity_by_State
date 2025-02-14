@@ -22,16 +22,52 @@ navbarPage(
   title = "COVID-19 Hospital Data",
   theme = shinythemes::shinytheme("flatly"),
   tabPanel(
-    title = "Overview",
-    icon = icon('database'),
+    title = "Home",
+    icon = icon('home'),
     fluidPage(
       h4("Covid-19 Patients Impact and Hospital Capacity By State "),
-      p("This dashboard provides insights into hospital capacities during COVID-19."),
+      span('A midcourse Data Science project by', strong('Nitin Pawar'), style='font-size:20px'),
+      br(),
       fluidRow(
-        
+        column(12, 
+               div(
+                 style = "text-align: center; padding: 20px;",
+                 h2("📊 Understanding the Impact of COVID-19 on Hospital Capacity"),
+                 p("This dashboard provides insights into hospital capacity, ICU utilization, 
+          and patient admissions across the United States. Explore trends, compare data, 
+          and analyze key healthcare indicators in response to COVID-19."),
+                 tags$hr(style="border-top: 3px solid #2c3e50;")
+               )
+        )
       ),
       fluidRow(
-        
+        column(4, wellPanel(
+          h4("🏥 Hospital Bed Utilization"),
+          p("Track inpatient and ICU bed occupancy trends over time.")
+        )),
+        column(4, wellPanel(
+          h4("🌍 Geographic Insights"),
+          p("Use interactive maps to visualize hospital capacity and covid-19 impact across the U.S.")
+        )),
+        column(4, wellPanel(
+          h4("🔍 Statistical Insights"),
+          p("Analyze correlations and trends affecting hospital capacity and staff by covid-19.")
+        ))
+      ),
+      tags$hr(style="border-top: 3px solid #2c3e50;"),
+      fluidRow(
+        # column(12, 
+        #        div(
+        #          style = "text-align: left; padding: 15px; background-color: #F8F9FA; border-radius: 10px;",
+        #          h3("📌 How to Use This Dashboard?"),
+        #          tags$ul(
+        #            tags$li("📍 Select a Date Range – Use the interactive slider to analyze different time periods."),
+        #            tags$li("🌎 Explore Geographic Trends – View utilization rates across different states."),
+        #            tags$li("📊 Compare Key Metrics – Utilize line charts and scatter plots."),
+        #            tags$li("🔍 Filter & Customize Data – Drill down into specific hospital data.")
+        #          )
+        #        )
+        # )
       )
     )
   ),
@@ -93,7 +129,12 @@ navbarPage(
                        ),
                        br(),
                        fluidRow(
-                         plotOutput("Pediatric_ICU_Bed_time_series_plot")
+                         plotOutput("Pediatric_ICU_Bed_time_series_plot"),
+                         br(),
+                         h4("Pediatric Data Ananmoly"),
+                         tags$ul(
+                           tags$li("The Pediatric data is inconsistent hence spikes/gaps for certain date ranges.")
+                         )
                        )
                      )
             ),
@@ -117,7 +158,7 @@ navbarPage(
         column(4),  # Empty space on left
         column(4, 
                sliderInput("quarter_date", "Select Quarterly Date:",
-                           min = quarters_seq[1], max = quarters_seq[length(quarters_seq)], value = quarters_seq[1], step = 20,
+                           min = quarters_seq[1], max = quarters_seq[length(quarters_seq)], value = quarters_seq[1], step = 15,
                            ticks = TRUE, animate = TRUE, width = "100%")
         ),
         column(4)
@@ -172,4 +213,3 @@ navbarPage(
     )
   )
 )
-  
